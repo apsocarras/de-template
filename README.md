@@ -1,59 +1,41 @@
 # Data engineering project template
 
-Detailed explanation can be found **[`in this post`](https://www.startdataengineering.com/post/data-engineering-projects-with-free-template/)**
+My personal fork of a **[`template`](https://github.com/josephmachado/data_engineering_project_template)** created by `@josephmachado.`
 
-## Prerequisites   
+See **[`this post`](https://www.startdataengineering.com/post/data-engineering-projects-with-free-template/)** for a detailed explanation of the template.
 
-To use the template, please install the following. 
+### **Setup**
 
-1. [git](https://git-scm.com/book/en/v2/Getting-Started-Installing-Git)
-2. [Github account](https://github.com/)
-3. [Terraform](https://learn.hashicorp.com/tutorials/terraform/install-cli) 
-4. [AWS account](https://aws.amazon.com/) 
-5. [AWS CLI installed](https://docs.aws.amazon.com/cli/latest/userguide/install-cliv2.html) and [configured](https://docs.aws.amazon.com/cli/latest/userguide/cli-chap-configure.html)
-6. [Docker](https://docs.docker.com/engine/install/) with at least 4GB of RAM and [Docker Compose](https://docs.docker.com/compose/install/) v1.27.0 or later
+1. In `.github/workflows/cd.yml`, change the value of the `TARGET` parameter after `/home/ubuntu/` to your repository name.
+2. In `terraform/variable.tf`, change the default value of `repo_url` to your repository url. 
+3. Run the following commands in your project directory:
 
-If you are using windows please setup WSL and a local Ubuntu Virtual machine following **[the instructions here](https://ubuntu.com/tutorials/install-ubuntu-on-wsl2-on-windows-10#1-overview)**. Install the above prerequisites on your ubuntu terminal, if you have trouble installing docker follow **[the steps here](https://www.digitalocean.com/community/tutorials/how-to-install-and-use-docker-on-ubuntu-22-04#step-1-installing-docker)**.
+  ```shell
+  # Local run & test
+  make up # start the docker containers on your computer & runs migrations under ./migrations
+  make ci # Runs auto formatting, lint checks, & all the test files under ./tests
 
-### Setup infra
+  # Create AWS services with Terraform
+  make tf-init # Only needed on your first terraform run (or if you add new providers)
+  make infra-up # type in yes after verifying the changes TF will make
 
-You can create your GitHub repository based on this template by clicking on the `Use this template button in the **[data_engineering_project_template](https://github.com/josephmachado/data_engineering_project_template)** repository. Clone your repository and replace content in the following files
+  # Wait until the EC2 instance is initialized, you can check this via your AWS UI
+  # See "Status Check" on the EC2 console, it should be "2/2 checks passed" before proceeding
+  # Wait another 5 mins, Airflow takes a while to start up
 
-1. **[CODEOWNERS](https://github.com/josephmachado/data_engineering_project_template/blob/main/.github/CODEOWNERS)**: In this file change the user id from `@josephmachado` to your Github user id.
-2. **[cd.yml](https://github.com/josephmachado/data_engineering_project_template/blob/main/.github/workflows/cd.yml)**: In this file change the `data_engineering_project_template` part of the `TARGET` parameter to your repository name.
-3. **[variable.tf](https://github.com/josephmachado/data_engineering_project_template/blob/main/terraform/variable.tf)**: In this file change the default values for `alert_email_id` and `repo_url` variables with your email and [github repository url](https://www.theserverside.com/blog/Coffee-Talk-Java-News-Stories-and-Opinions/GitHub-URL-find-use-example) respectively.
+  make cloud-airflow # this command will forward Airflow port from EC2 to your machine and opens it in the browser
+  # the user name and password are both airflow
 
-Run the following commands in your project directory.
+  make cloud-metabase # this command will forward Metabase port from EC2 to your machine and opens it in the browser
+  # use https://github.com/josephmachado/data_engineering_project_template/blob/main/env file to connect to the warehouse from metabase
+  ```
 
-```shell
-# Local run & test
-make up # start the docker containers on your computer & runs migrations under ./migrations
-make ci # Runs auto formatting, lint checks, & all the test files under ./tests
-
-# Create AWS services with Terraform
-make tf-init # Only needed on your first terraform run (or if you add new providers)
-make infra-up # type in yes after verifying the changes TF will make
-
-# Wait until the EC2 instance is initialized, you can check this via your AWS UI
-# See "Status Check" on the EC2 console, it should be "2/2 checks passed" before proceeding
-# Wait another 5 mins, Airflow takes a while to start up
-
-make cloud-airflow # this command will forward Airflow port from EC2 to your machine and opens it in the browser
-# the user name and password are both airflow
-
-make cloud-metabase # this command will forward Metabase port from EC2 to your machine and opens it in the browser
-# use https://github.com/josephmachado/data_engineering_project_template/blob/main/env file to connect to the warehouse from metabase
-```
-
-**Data infrastructure**
+### **Infrastructure Overview**
 ![DE Infra](/assets/images/infra.png)
-
-**Project structure**
 ![Project structure](/assets/images/proj_1.png)
 ![Project structure - GH actions](/assets/images/proj_2.png)
 
-Database migrations can be created as shown below.
-
+**Creating Database Migrations**
 ```shell
 make db-migration # enter a description, e.g. create some schema
 # make your changes to the newly created file under ./migrations

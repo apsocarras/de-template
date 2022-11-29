@@ -11,6 +11,7 @@ See **[`this post`](https://www.startdataengineering.com/post/data-engineering-p
     cp -Lr ~/<symlink_to_template> ~/projects/<new_project_name>
     cd ~/projects/<new_project_name>
     ```
+2. Create new github repository with same name, add as remote, and push local directory to it.
 2. In `.github/workflows/cd.yml`, change the value of the `TARGET` parameter after `/home/ubuntu/` to the name of the repository.
 3. In `terraform/variable.tf`, change the default value of `repo_url` to your the repository url. 
 4. Run the following commands in your project directory:
